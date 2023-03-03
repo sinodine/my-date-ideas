@@ -33,7 +33,6 @@
         ></iframe>-->
         <script>
                 
-                
                 // ****************************************************************************************
 
 var maxParticleCount = 150; //set max confetti count
@@ -279,8 +278,8 @@ const ctx = canvas.getContext("2d");
 const centerX = canvas.width / 2 + 20;
 const centerY = canvas.height / 2 ;
 const radius = 300;
-//const numSlices = 8;
-const numSlices = myIdeas.length;
+const numSlices = 8;
+//const numSlices = slices.length;
 const sliceAngle = (2 * Math.PI) / numSlices;
 
 
@@ -387,7 +386,6 @@ function Suite(){
     spinBtn.disabled=false;
     drawWheel();
     drawArrow('#000000');
-    displayText("Spin the Wheel!",'#000000', true);
     }, freq * 630);
   
 
@@ -409,7 +407,7 @@ function Suite(){
 drawWheel();
 drawArrow('#000000');
 stopBtn.disabled = true;
-displayText("Spin the Wheel!",'#000000', true);
+displayText("Spin the Wheel !",'#000000', true);
 
 // Add event listener to spin the wheel on button click
 spinBtn.addEventListener("click", () => {
@@ -424,26 +422,7 @@ spinBtn.addEventListener("click", () => {
 });
 
 
-stopBtn.addEventListener("click");
-
-/*
-// Fetch the filters
-function filters(){
-  var myIdeas =[];
-  for(var i=0; i < ideas.length ; i++){
-      const myIdea = ideas[i];
-      if(selectedCategory === "all"){
-        myIdeas = ideas;
-      }
-      else if(myIdea.category === selectedCategory
-          && true
-          ){
-              myIdeas.push(myIdea); 
-      }
-  }
-   numSlices = myIdeas.length;
-}
-*/
+stopBtn.addEventListener("click", () => {stopWheel();});
                 
                 
         </script>
