@@ -8,21 +8,65 @@
     
     <h1>Spin the Wheel of Ideas</h1>
 
-    <div class="category-select">
-      <label for="category">Select a category:</label>
-      <select id="category">
-        <option value="all">All</option>
-        <option value="food">Food</option>
-        <option value="outdoors">Outdoors</option>
-        <option value="arts">Arts</option>
-      </select>
+  
+    <p>Select your filters:</p>
+    <label for="All"> <input type="checkbox" name="category" value="all" id="c1">All</label>
+    <label for="Outdoor"><input type="checkbox" name="category" value="Outdoor" id="c2">Outdoor</label>
+    <label for="Indoor"><input type="checkbox" name="category" value="Indoor" id="c3">Indoor</label>
+    <label for="DateNigth"><input type="checkbox" name="category" value="DateNigth" id="c4">Date Nigth</label>
+    <label for="Food"><input type="checkbox" name="food?" value=1 id="nofood">No Food</label>
+    <label for="prep"> <input type="checkbox" name="preparation?" value="false" id="noprep">No Preparation</label>
+    <label for="ext"> <input type="checkbox" name="inside?" value="false" id="noext">Stay inside</label>
+
+    <p>How much are you ready to spend: </p> <!--<span id="rangeValue"></span>-->
+    <div class="slidecontainer">
+      <label for="costRange"><span id="t">0</span></label>
+      <input type="range" min="0" max="4" step ="1" value="4" class="slider" id="costRange">
+      <span id="t">4</span>
+    </div>
+
     
-    <!--<canvas id="myArrow" width="400" height="40"></canvas>-->
+    <p>
+      <button id="Submitbtn" onclick="filters()">Submit</button>
+      <button id="reset" onclick="resetAll()">Reset</button>
+    </p>
+
     <canvas id="myWheel" width="660" height="600"></canvas>
     <button id="spinBtn" onclick="spinWheel()">Spin the wheel</button>
     <button id="stopBtn" onclick="stopWheel()">Stop the wheel</button>
-
+	  
     </div>
+
+	<style>.slider {
+  -webkit-appearance: none;
+  width: 18%;
+  height: 8px;
+  border-radius: 5px;   
+  background: #e6e6e6;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 20px;
+  border-radius: 50%; 
+  background: #78e6ff;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #78e6ff;
+  cursor: pointer;
+}
+	</style>
 
         <!--<script src="/Users/sixtine/Autre/Site\ dams/js_datems.js"></script>-->
         <!--<iframe src="https://codesandbox.io/embed/strange-haze-nrdkrj?fontsize=14&hidenavigation=1&theme=dark"
@@ -252,35 +296,65 @@ const ideas = [
 const canvas = document.getElementById("myWheel");
 const spinBtn = document.getElementById("spinBtn");
 const stopBtn = document.getElementById("stopBtn");
-const selectedElement = document.getElementById("category");
-const selectedCategory = selectedElement.value;
+var costRange = document.getElementById("costRange");
+
+
+//const category = document.getElementById("category");
+//var selectedCategory = category.value;
 const freq = 10;
 
 
+var numSlices = 8;
+var myIdeas =ideas;
+var sliceAngle = (2 * Math.PI) / numSlices;
+
+
 // Fetch the filters
-var myIdeas =[];
-for(var i=0; i < ideas.length ; i++){
-    const myIdea = ideas[i];
-    if(selectedCategory === "all"){
-      myIdeas = ideas;
-    }
-    else if(myIdea.category === selectedCategory
+function filters(){
+  myIdeas =[];
+  for(var i=0; i < ideas.length ; i++){
+      const myIdea = ideas[i];
+      if((c1.checked || !(c1.checked|| c2.checked||c3.checked||c4.checked))
+        &&(myIdea.cost <= costRange.value)
+        &&(!noprep.checked || !myIdea.prep)
+        &&(!noext.checked|| !myIdea.ext)
+        &&(!nofood.checked|| !myIdea.food)
         && true
         ){
+          myIdeas.push(myIdea);
+      }
+
+      else if(((c2.checked && myIdea.category === "Outdoor")
+              || (c3.checked && myIdea.category === "Indoor")
+              || (c4.checked && myIdea.category === "DateNight")
+              )
+            &&(myIdea.cost <= costRange.value)
+            &&(!noprep.checked || !myIdea.prep)
+            &&(!noext.checked|| !myIdea.ext)
+            &&(!nofood.checked|| !myIdea.food)
+            && true
+          ){
             myIdeas.push(myIdea); 
-    }
+      }
+  }
+  numSlices = myIdeas.length;
+  sliceAngle = (2 * Math.PI) / numSlices;
+
+  drawWheel();
+  drawArrow('#000000');
+  stopBtn.disabled = true;
+  displayText("Spin the Wheel!",'#000000', true);
+  //displayText(numSlices,'#000000', true);
 }
-
-
 
 // Set up the canvas context for drawing the wheel
 const ctx = canvas.getContext("2d");
 const centerX = canvas.width / 2 + 20;
 const centerY = canvas.height / 2 ;
 const radius = 300;
-const numSlices = 8;
-//const numSlices = slices.length;
-const sliceAngle = (2 * Math.PI) / numSlices;
+//const numSlices = 8;
+//const numSlices = myIdeas.length;
+//const sliceAngle = (2 * Math.PI) / numSlices;
 
 
 // Set up the canvas for the text
@@ -348,7 +422,9 @@ function spinWheel() {
     // If the stop button has been clicked, stop the animation loop and re-enable the buttons
     if (stopBtn.disabled) {
       clearInterval(animationLoop);
+      reset.disabled = true;
       spinBtn.disabled = true;
+      Submitbtn.disabled = true;
       stopBtn.disabled = true;
       Suite();
     }
@@ -371,9 +447,6 @@ function stopWheel() {
 
 
 function Suite(){
-  
-  spinBtn.disabled = true;
-  stopBtn.disabled = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   //hideWheel();
   startConfetti();
@@ -384,8 +457,11 @@ function Suite(){
   
   setTimeout(() => {
     spinBtn.disabled=false;
+    Submitbtn.disabled = false;
+    reset.disabled = false;
     drawWheel();
     drawArrow('#000000');
+    displayText("Spin the Wheel!",'#000000', true);
     }, freq * 630);
   
 
@@ -403,16 +479,22 @@ function Suite(){
 
 
 // ***** MAIN *****
-
+filters();
+/*
 drawWheel();
 drawArrow('#000000');
 stopBtn.disabled = true;
-displayText("Spin the Wheel !",'#000000', true);
+displayText("Spin the Wheel!",'#000000', true);
+*/
+
+
 
 // Add event listener to spin the wheel on button click
 spinBtn.addEventListener("click", () => {
   // Disable the spin button
   spinBtn.disabled = true;
+  Submitbtn.disabled = true;
+  reset.disabled = true;
 
   // Enable the stop button
   stopBtn.disabled = false;
@@ -422,8 +504,41 @@ spinBtn.addEventListener("click", () => {
 });
 
 
-stopBtn.addEventListener("click", () => {stopWheel();});
-                
+stopBtn.addEventListener("click");
+
+Submitbtn.addEventListener("click", () => {filters();});
+
+/*
+category.addEventListener("change", () => {
+  alert(myIdeas.length);
+  filters();
+  drawWheel();
+  drawArrow('#000000');
+  stopBtn.disabled = true;
+  displayText("Spin the Wheel!",'#000000', true);
+  
+});
+*/
+
+const foodBox = document.getElementById("nofood");
+
+foodBox.addEventListener('change', () => {
+  if(this.checked){
+    alert("rhooooo");
+  }
+});
+
+
+function resetAll(){
+  c1.checked = false;
+  c2.checked = false;
+  c3.checked = false;
+  c4.checked = false;
+  nofood.checked = false;
+  noprep.checked = false;
+  noext.checked = false;
+  costRange.value = 4;
+};                
                 
         </script>
 
